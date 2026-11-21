@@ -9,7 +9,7 @@ const DEFAULT_THEME = 'pixel';
 function applyTheme(name) {
     if (!THEMES.includes(name)) name = DEFAULT_THEME;
     document.documentElement.setAttribute('data-theme', name);
-    try { localStorage.setItem('japon2_theme', name); } catch (e) {}
+    try { localStorage.setItem('gentravel_theme', name); } catch (e) {}
     document.querySelectorAll('.theme-chip').forEach(b => b.classList.toggle('active', b.dataset.theme === name));
 }
 
@@ -33,7 +33,7 @@ async function chooseTheme(name) {
 // Apenas carga la página: el último tema usado en este dispositivo (evita el parpadeo de colores)
 (function () {
     let t = DEFAULT_THEME;
-    try { t = localStorage.getItem('japon2_theme') || DEFAULT_THEME; } catch (e) {}
+    try { t = localStorage.getItem('gentravel_theme') || DEFAULT_THEME; } catch (e) {}
     applyTheme(t);
 })();
 
