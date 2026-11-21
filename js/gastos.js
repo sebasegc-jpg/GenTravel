@@ -66,8 +66,8 @@ async function ensureTravelerNames() {
         let p2 = prompt("Ingresá el Nombre del Viajero 2:", traveler2 || "Hil");
         traveler1 = p1 || "Sebas";
         traveler2 = p2 || "Hil";
-        localStorage.setItem('japon2_traveler1', traveler1);
-        localStorage.setItem('japon2_traveler2', traveler2);
+        localStorage.setItem('gentravel_traveler1', traveler1);
+        localStorage.setItem('gentravel_traveler2', traveler2);
         try {
             await saveConfigValue('Viajero1', traveler1);
             await saveConfigValue('Viajero2', traveler2);
@@ -114,8 +114,8 @@ async function resetTravelers() {
     const p1 = prompt("Nombre del Viajero 1:", p1Default());
     const p2 = prompt("Nombre del Viajero 2:", p2Default());
     try {
-        if (p1) { traveler1 = p1; localStorage.setItem('japon2_traveler1', p1); await saveConfigValue('Viajero1', p1); }
-        if (p2) { traveler2 = p2; localStorage.setItem('japon2_traveler2', p2); await saveConfigValue('Viajero2', p2); }
+        if (p1) { traveler1 = p1; localStorage.setItem('gentravel_traveler1', p1); await saveConfigValue('Viajero1', p1); }
+        if (p2) { traveler2 = p2; localStorage.setItem('gentravel_traveler2', p2); await saveConfigValue('Viajero2', p2); }
     } catch (e) {
         alert('No se pudieron guardar los nombres en el Sheet: ' + e.message);
     }
@@ -174,7 +174,7 @@ function changeBalanceCurrency() {
     const sel = document.getElementById('balance-currency');
     if (!sel) return;
     balanceCurrency = sel.value;
-    try { localStorage.setItem('japon2_balance_currency', balanceCurrency); } catch (e) {}
+    try { localStorage.setItem('gentravel_balance_currency', balanceCurrency); } catch (e) {}
     renderExpenses();
 }
 
