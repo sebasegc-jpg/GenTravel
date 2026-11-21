@@ -2,10 +2,10 @@
 // Configuración del viaje y estado global (URL del Apps Script, variables compartidas, red Shinkansen).
 // Es el primer archivo que se carga: los demás usan estas variables.
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-4FwNlzBYgzqx59HByDFoTuIW_0VXU1OR0LyzMVJLzcYn1Pu48e8-MJBaJ2ytFpjT/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwsle7zYu7Oj-esc96F-4old6FNDfot363fCArK7WgQK1hdtFDHfwyTHciR5UOwBbuCxg/exec";
 let ARS_USD_RATE = 1250;
 let JPY_USD_RATE = 150;         // [CAMBIO 12] yenes por dólar (se actualiza en vivo)
-let balanceCurrency = localStorage.getItem('japon2_balance_currency') || 'JPY'; // [CAMBIO 12] moneda del balance
+let balanceCurrency = localStorage.getItem('gentravel_balance_currency') || 'JPY'; // [CAMBIO 12] moneda del balance
 
 let START_DATE = null;
 let currentWeek = 1;
@@ -16,8 +16,8 @@ let recomendationsData = [];
 let rawExpenses = [];
 let tripConfig = {};            // [CAMBIO 19] valores de la pestaña Config (NombreViaje, Viajero1, Viajero2)
 
-let traveler1 = localStorage.getItem('japon2_traveler1') || '';
-let traveler2 = localStorage.getItem('japon2_traveler2') || '';
+let traveler1 = localStorage.getItem('gentravel_traveler1') || '';
+let traveler2 = localStorage.getItem('gentravel_traveler2') || '';
 
 let currentModalEventObj = null;
 let editingAccommodation = null; // [CAMBIO 4] alojamiento que se está editando (o null)
