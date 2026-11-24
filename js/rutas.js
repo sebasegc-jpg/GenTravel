@@ -26,6 +26,7 @@ function getEventIcon(ev) {
     if (ev.type === 'transporte') return MEDIO_ICONS[getMedio(ev)] || '🚌';
     if (ev.type === 'show') return '🎸';
     if (ev.type === 'sleep') return '🏨';
+        if (ev.type === 'descanso') return '😴'; // [CAMBIO 27]
     return '📍';
 }
 
@@ -57,13 +58,51 @@ function buildDirectionsUrl(origin, destination, mode) {
 }
 
 // Tramos con el mismo código de reserva (vuelos con escala), ordenados por fecha y hora
+// [CAMBIO 25] Tiempo máximo entre la LLEGADA de un tramo y la SALIDA del siguiente para que cuente como escala.
+// Si pasa más que esto (por ejemplo, el vuelo de vuelta días después), es otro viaje,
+// aunque tenga el mismo código de reserva.
+const MAX_ESCALA_MS = 24 * 3600000; // 24 horas
+
+// Momento de salida de un tramo (fecha + hora de inicio)
+function legStartMs(e) {
+    const d = parseDateStr(e.date);
+    return (d ? d.getTime() : 0) + (e.startHour || 0) * 3600000;
+}
+
+// Momento de llegada de un tramo (fecha fin + hora fin; si falta, inicio + duración)
+function legEndMs(e) {
+    const d = parseDateStr(e.endDate || e.date);
+    const h = (e.endHour !== null && e.endHour !== undefined && !isNaN(e.endHour))
+        ? e.endHour
+        : (e.startHour || 0) + (parseInt(e.durationHours) || 0);
+    return (d ? d.getTime() : 0) + h * 3600000;
+}
+
+// Tramos del MISMO viaje: mismo código de reserva y encadenados (cada uno sale hasta 24 h
+// después de que llegó el anterior). Ordenados por fecha y hora.
 function getTicketLegs(ev) {
     const code = String(ev.bookingCode || '').trim().toLowerCase();
     if (!code) return [ev];
     const legs = localEvents.filter(e => e.type === 'transporte' && String(e.bookingCode || '').trim().toLowerCase() === code);
-    const sortKey = e => { const d = parseDateStr(e.date); return (d ? d.getTime() : 0) + (e.startHour || 0) * 3600000; };
-    legs.sort((a, b) => sortKey(a) - sortKey(b));
-    return legs.length > 0 ? legs : [ev];
+    legs.sort((a, b) => legStartMs(a) - legStartMs(b));
+
+    // [CAMBIO 25] Separar en grupos: si entre la llegada de un tramo y la salida del siguiente
+    // pasan más de 24 h, empieza un viaje nuevo (por ejemplo, ida por un lado y vuelta por otro).
+    const groups = [];
+    let current = [];
+    legs.forEach(l => {
+        if (current.length === 0) { current.push(l); return; }
+        const prev = current[current.length - 1];
+        if (legStartMs(l) - legEndMs(prev) <= MAX_ESCALA_MS) {
+            current.push(l);
+        } else {
+            groups.push(current);
+            current = [l];
+        }
+    });
+    if (current.length > 0) groups.push(current);
+
+    return groups.find(g => g.includes(ev)) || [ev];
 }
 
 function routeButton(url, label, color) {
@@ -76,7 +115,7 @@ function getPreviousStop(ev) {
     if (ev.startHour === null) return null;
     let best = null, bestHour = -1;
     localEvents.forEach(e => {
-        if (e === ev || e.type === 'sleep') return;
+     if (e === ev || e.type === 'sleep' || e.type === 'descanso') return; // [CAMBIO 27]
         if (e.type === 'transporte') {
             const arrDate = e.endDate || e.date;
             const arrHour = (e.endHour !== null && e.endHour !== undefined && !isNaN(e.endHour)) ? e.endHour : e.startHour;
@@ -113,7 +152,7 @@ function getHotelForEvent(ev) {
 // ¿Es lo último del día? (no hay otro evento ni transporte más tarde ese mismo día)
 function isLastOfDay(ev) {
     if (ev.startHour === null) return false;
-    return !localEvents.some(e => e !== ev && e.type !== 'sleep' && e.startHour !== null &&
+        return !localEvents.some(e => e !== ev && e.type !== 'sleep' && e.type !== 'descanso' && e.startHour !== null && // [CAMBIO 27]
         sameDay(e.date, ev.date) && e.startHour > ev.startHour);
 }
 
@@ -130,7 +169,7 @@ function buildPlacesOptions(excludeCoords) {
     accommodationsData.forEach(a => add(a.coords, `🏨 ${a.name}`));
     html += '</optgroup><optgroup label="📅 Itinerario">';
     localEvents.forEach(e => {
-        if (e.type === 'sleep') return;
+        if (e.type === 'sleep' || e.type === 'descanso') return; // [CAMBIO 27]
         if (e.type === 'transporte') {
             add(e.coordsInicio, `${getEventIcon(e)} ${e.title} (salida)`);
             add(e.coordsFin, `${getEventIcon(e)} ${e.title} (llegada)`);
