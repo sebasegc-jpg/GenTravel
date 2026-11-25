@@ -27,7 +27,7 @@ body {
 
 @media (min-width: 1024px) {
     body {
-        background-size: 405px 100vh, 405px 100vh;
+        background-size: 335px 100vh, 335px 100vh;
         background-repeat: no-repeat, no-repeat;
         background-position: left top, right top;
         background-attachment: fixed, fixed;
