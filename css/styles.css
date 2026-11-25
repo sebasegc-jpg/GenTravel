@@ -34,8 +34,8 @@ body {
     }
         /* [CAMBIO 17] Itinerario en dos mitades: la primera imagen va a la izquierda, la segunda a la derecha */
     body:has(#calendario.active) { background-image: url('../itinerarioIzq.png'), url('../itinerarioDer.png'); }
-    body:has(#transporte.active) { background-image: url('../mapa.png'), url('../mapa.png'); }
-    body:has(#gastos.active) { background-image: url('../gastos.png'), url('../gastos.png'); }
+    body:has(#transporte.active) { background-image: url('../mapaIzq.png'), url('../mapaDer.png'); }
+    body:has(#gastos.active) { background-image: url('../gastosIzq.png'), url('../gastosDer.png'); }
 
     .tab-banner { display: none !important; }
     main { max-width: 1250px !important; padding: 0 1rem !important; }
