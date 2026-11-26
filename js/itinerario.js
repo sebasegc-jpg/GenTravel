@@ -5,6 +5,7 @@
 //             y si dos eventos se pisan, el descanso cede las horas a los demás.
 // [CAMBIO 26b] Marco de aviso cuando hay planes superpuestos (violeta = sueño, naranja = otro evento).
 // [CAMBIO 27] Tipo "descanso" (dormir): sin ubicación, violeta, cede su lugar a otros eventos.
+// [CAMBIO 29] Aviso al guardar si otra actividad o show ya usa el mismo link de ubicación.
 
 let editingEventID = ''; // [CAMBIO 16] ID del evento que se está editando ('' = nuevo)
 
@@ -739,6 +740,19 @@ async function saveEvent(e) {
         }
     }
 
+    // [CAMBIO 29] Aviso si otra actividad o show ya usa el mismo link de ubicación
+    // (los transportes no se comparan: repetir estaciones o aeropuertos es normal)
+    if (type !== 'transporte' && type !== 'descanso' && type !== 'sleep' && ubicacionInicio.trim() !== '') {
+        const same = localEvents.find(ev =>
+            ev.id !== recordID &&
+            ev.type !== 'transporte' && ev.type !== 'descanso' &&
+            String(ev.location || '').trim() === ubicacionInicio.trim()
+        );
+        if (same && !confirm(`⚠️ Este link de ubicación ya lo usa "${same.title}" (${same.date}).\n\n¿Seguro que es el mismo lugar?\n\nAceptar = guardar igual\nCancelar = volver a revisar el link`)) {
+            return; // no guarda: el formulario queda abierto para corregir
+        }
+    }
+    
     // Botón en modo "Guardando..." para evitar doble clic
     const submitBtn = e.submitter || document.querySelector('#addEventForm button[type="submit"]');
     const originalBtnText = submitBtn ? submitBtn.innerText : '';
